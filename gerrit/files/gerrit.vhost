@@ -1,0 +1,23 @@
+{%- from "gerrit_ci/gerrit/settings.sls" import gerrit with context -%}
+<VirtualHost {{ gerrit.http_virtual_host }}>
+    ServerName {{ gerrit.server_name }}
+    Redirect / {{ gerrit.https_url }}
+</VirtualHost>
+<VirtualHost {{ gerrit.https_virtual_host }}>
+    SSLEngine on
+    SSLCertificateFile    /etc/ssl/certs/gerrit.crt
+    SSLCertificateKeyFile /etc/ssl/certs/gerrit.key
+    ServerName {{ gerrit.server_name }}
+
+    ProxyRequests Off
+    ProxyVia Off
+    ProxyPreserveHost On
+
+    <Proxy *>
+        Order deny,allow
+        Allow from all
+    </Proxy>
+
+    AllowEncodedSlashes On
+    ProxyPass / {{ gerrit.proxy_pass_url }} nocanon
+</VirtualHost>

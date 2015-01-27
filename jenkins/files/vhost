@@ -1,0 +1,25 @@
+{%- from "gerrit_ci/jenkins/settings.sls" import jenkins with context -%}
+<VirtualHost {{ jenkins.http_virtual_host }}>
+    ServerName {{ jenkins.server_name }}
+    Redirect / {{ jenkins.https_url }}
+</VirtualHost>
+<VirtualHost {{ jenkins.https_virtual_host }}>
+    SSLEngine on
+    SSLCertificateFile    /etc/ssl/certs/jenkins.crt
+    SSLCertificateKeyFile /etc/ssl/certs/jenkins.key
+    ServerName {{ jenkins.server_name }}
+
+    RequestHeader set X-Forwarded-Proto "https"
+    ProxyRequests Off
+    ProxyVia Off
+    ProxyPreserveHost On
+
+    <Proxy *>
+        Order deny,allow
+        Allow from all
+    </Proxy>
+
+    AllowEncodedSlashes NoDecode
+    ProxyPass / {{ jenkins.proxy_pass_url }} nocanon
+    ProxyPassReverse / {{ jenkins.proxy_pass_url }}
+</VirtualHost>
