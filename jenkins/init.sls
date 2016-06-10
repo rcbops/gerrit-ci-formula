@@ -173,12 +173,21 @@ jenkins-plugins-list:
       - file: {{ jenkins.home }}/.ssh/id_rsa
       - file: {{ jenkins.home }}/.ssh/id_rsa.pub
 
+{{ jenkins.home }}/plugins:
+  file.directory:
+    - user: jenkins
+    - group: jenkins
+    - require:
+      - pkg: required-software
+
 {% for plugin, url in salt['pillar.get']('jenkins:manual_plugins', {}).iteritems() %}
 manual-plugin-{{ plugin }}:
   cmd.run:
     - name: wget {{ url }}
     - cwd: {{ jenkins.home }}/plugins
     - creates: {{ jenkins.home }}/plugins/{{ plugin }}.hpi
+    - require:
+      - file: {{ jenkins.home }}/plugins
     - watch_in:
       - service: jenkins-service
 {% endfor %}
