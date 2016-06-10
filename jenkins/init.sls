@@ -137,16 +137,6 @@ jenkins-plugins-list:
     - require:
       - file: {{ jenkins.home }}/.ssh
 
-{{ jenkins.home }}/config.xml:
-  file.managed:
-    - source: salt://gerrit_ci/jenkins/files/config.xml
-    - template: jinja
-    - owner: jenkins
-    - group: jenkins
-    - replace: False
-    - require:
-      - pkg: required-software
-
 {{ jenkins.home }}/gerrit-trigger.xml:
   file.managed:
     - source: salt://gerrit_ci/jenkins/files/gerrit-trigger.xml
@@ -183,32 +173,27 @@ jenkins-plugins-list:
       - file: {{ jenkins.home }}/.ssh/id_rsa
       - file: {{ jenkins.home }}/.ssh/id_rsa.pub
 
+{% for plugin, url in salt['pillar.get']('jenkins:manual_plugins', {}).iteritems() %}
+manual-plugin-{{ plugin }}:
+  cmd.run:
+    - name: wget {{ url }}
+    - cwd: {{ jenkins.home }}/plugins
+    - creates: {{ jenkins.home }}/plugins/{{ plugin }}.hpi
+    - watch_in:
+      - service: jenkins-service
+{% endfor %}
+
 jenkins-service:
   service.running:
     - name: jenkins
     - enable: True
     - watch:
-      - file: {{ jenkins.home }}/config.xml
       - file: {{ jenkins.home }}/gerrit-trigger.xml
       - file: {{ jenkins.home }}/users/{{ jenkins.username }}/config.xml
       - cmd: jenkins-plugins-list
     - require:
-      - file: {{ jenkins.home }}/config.xml
       - file: {{ jenkins.home }}/credentials.xml
       - file: {{ jenkins.home }}/gerrit-trigger.xml
       - file: {{ jenkins.home }}/users/{{ jenkins.username }}/config.xml
       - pkg: required-software
       - cmd: jenkins-plugins-list
-
-{% for plugin in jenkins.plugins %}
-jenkins-plugin-{{ plugin }}:
-  cmd.script:
-    - name: install-plugin {{ plugin }}
-    - source: salt://gerrit_ci/jenkins/files/install-plugin.sh
-    - template: jinja
-    - user: jenkins
-    - onlyif: test ! -s {{ jenkins.home }}/plugins/{{ plugin }}.jpi
-    - require:
-      - service: jenkins-service
-      - pkg: required-software
-{% endfor %}

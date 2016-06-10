@@ -26,28 +26,6 @@
   <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
   <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
   <clouds/>
-  <slaves>
-  {% for id, slave in jenkins.slaves.iteritems() %}
-    <slave>
-      <name>{{ id }}</name>
-      <description>Slave {{ id }}</description>
-      <remoteFS>/home/jenkins</remoteFS>
-      <numExecutors>{{ slave.numExecutors }}</numExecutors>
-      <mode>NORMAL</mode>
-      <retentionStrategy class="hudson.slaves.RetentionStrategy$Always"/>
-      <launcher class="hudson.plugins.sshslaves.SSHLauncher" plugin="ssh-slaves@1.9">
-        <host>{{ slave.host }}</host>
-        <port>22</port>
-        <credentialsId>{%- include 'gerrit_ci/jenkins/files/credentials_uuid' without context -%}</credentialsId>
-        <maxNumRetries>0</maxNumRetries>
-        <retryWaitTime>0</retryWaitTime>
-      </launcher>
-      <label/>
-      <nodeProperties/>
-      <userId>{{ jenkins.username }}</userId>
-    </slave>
-  {% endfor %}
-  </slaves>
   <quietPeriod>5</quietPeriod>
   <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
   <views>

@@ -10,6 +10,7 @@ required-software:
       - python-mysqldb
       - wget
       - apache2
+      - git
     - require:
       - sls: gerrit_ci.java
 
@@ -140,19 +141,11 @@ gerrit-index:
       - cmd: gerrit-init
     - onlyif: test ! -e /home/gerrit2/review_site/index/gerrit_index.config
 
-/home/gerrit2/review_site/bin/gerrit.sh:
-  file.uncomment:
-    - char: '#'
-    - regex: '((chkconfig: 3 99 99)|(description: Gerrit Code Review)|(processname: gerrit))'
-    - require:
-      - cmd: gerrit-init
-      - cmd: gerrit-index
-
 /etc/init.d/gerrit:
   file.symlink:
     - target: /home/gerrit2/review_site/bin/gerrit.sh
     - require:
-      - file: /home/gerrit2/review_site/bin/gerrit.sh
+      - cmd: gerrit-index
 
 /etc/rc3.d/s90gerrit:
   file.symlink:
