@@ -1,0 +1,20 @@
+minion-4gb-precise:
+  - ci-gerrit:
+      grains:
+        roles:
+          - gerrit
+
+  - ci-jenkins-slave-1:
+      grains:
+        roles:
+          - jenkins_slave
+
+  - ci-jenkins-slave-2:
+      grains:
+        roles:
+          - jenkins_slave
+
+  - ci-jenkins:
+      grains:
+        roles:
+          - jenkins
