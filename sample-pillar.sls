@@ -31,15 +31,15 @@ jenkins:
   username: jenkins
   password: apassword
   email: someemail@somedomain.com
-  server_name: 172.24.4.79
-  https_url: https://172.24.4.79/
+  server_name: jenkins_server_name
+  https_url: https://jenkins-ip
   plugins:
     - gerrit-trigger
     - git
     - ssh-credentials
     - ssh-slaves
   gerrit:
-    frontEndUrl: https://172.24.4.77/
+    frontEndUrl: https://gerrit-ip
   manual_plugins:
     matrix-auth: http://updates.jenkins-ci.org/download/plugins/matrix-auth/1.3/matrix-auth.hpi
 {% endif %}
